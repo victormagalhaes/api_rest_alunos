@@ -30,8 +30,6 @@ class DisciplinaAlunoList(generics.ListAPIView):
     queryset = DisciplinaAluno.objects.all()
 
     def get_queryset(self):
-        import ipdb; ipdb.set_trace()
-
         queryset = DisciplinaAluno.objects.all()
         aluno = self.request.QUERY_PARAMS.get('aluno', None)
         if aluno is not None:
