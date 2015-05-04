@@ -24,6 +24,23 @@ class AlunoDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Aluno.objects.all()
     serializer_class = AlunoSerializer
 
+class AlunoList(generics.ListAPIView):
+    serializer_class = AlunoSerializer
+    queryset = Aluno.objects.all()
+
+    def get_queryset(self):
+        queryset = Aluno.objects.all()
+        matricula = self.request.QUERY_PARAMS.get('matricula', None)
+        if matricula is not None:
+            queryset = queryset.filter(matricula=matricula)
+        return queryset
+
+    def get(self, request, format=None):
+        aluno = self.get_queryset()
+        serializer_class = AlunoSerializer(aluno, many=True)
+
+        return Response(serializer_class.data)
+
 
 class DisciplinaAlunoList(generics.ListAPIView):
     serializer_class = DisciplinaAlunoSerializer
