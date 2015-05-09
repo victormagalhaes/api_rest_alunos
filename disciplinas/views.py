@@ -3,6 +3,8 @@ from disciplinas.filters import DisciplinaFilter, AlunoFilter, DisciplinaAlunoFi
 from disciplinas.serializers import DisciplinaSerializer, AlunoSerializer, DisciplinaAlunoSerializer
 from rest_framework.response import Response
 from rest_framework import generics
+from rest_framework.views import exception_handler
+from rest_framework.decorators import api_view
 
 
 class DisciplinaList(generics.ListCreateAPIView):
@@ -60,13 +62,27 @@ class DisciplinaAlunoList(generics.ListAPIView):
         return Response(serializer_class.data)
 
 
-    def post(self, request, format=None):
-        serializer_class = DisciplinaAlunoSerializer(data=request.DATA)
-        if serializer_class.is_valid():
-          serializer_class.save()
-          return Response(serializer_class.data, status=status.HTTP_201_CREATED)
-        else:
-          return Response(serializer_class.errors, status=status.HTTP_400_BAD_REQUEST)
+    def post(self, request, *args, **kwargs):
+        import ipdb; ipdb.set_trace()
+
+        response = { 'data': {'success': True }}
+
+        aluno_id = request.DATA['aluno_id']
+        disciplina_id = request.DATA['disciplina_id']
+
+        if (request.DATA['metodo'] == 'alterar'):
+            nota_atualizada = request.DATA['nota']
+            try:
+                DisciplinaAluno.objects.filter(aluno__id=aluno_id, disciplina__id=disciplina_id).update(nota=nota_atualizada)
+            except:
+                response['data']['success'] = False
+        elif (request.DATA['metodo'] == 'excluir'):
+            try:
+                DisciplinaAluno.objects.filter(aluno__id=aluno_id, disciplina__id=disciplina_id).delete()
+            except:
+                response['data']['success'] = False
+
+        return Response(**response)
 
 class DisciplinaAlunoDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = DisciplinaAluno.objects.all()
