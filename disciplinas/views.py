@@ -87,3 +87,14 @@ class DisciplinaAlunoList(generics.ListAPIView):
 class DisciplinaAlunoDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = DisciplinaAluno.objects.all()
     serializer_class = DisciplinaAlunoSerializer
+
+    def update(self, request, pk=None):
+        response = { 'data': {'success': True }}
+        try:
+            import ipdb; ipdb.set_trace()
+
+            self.queryset.filter(id=request.DATA['id']).update(nota=request.DATA['nota'])
+        except:
+            response = { 'data': {'success': False }}
+
+        return Response(**response)
