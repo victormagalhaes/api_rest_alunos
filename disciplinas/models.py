@@ -27,3 +27,6 @@ class DisciplinaAluno(models.Model):
 
     def __unicode__(self):
         return u'Aluno: %s - Disciplina: %s' % (self.aluno.matricula, self.disciplina.nome)
+
+    class Meta:
+        unique_together = ('aluno', 'disciplina')

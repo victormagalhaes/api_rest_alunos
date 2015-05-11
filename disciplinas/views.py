@@ -26,6 +26,7 @@ class AlunoDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Aluno.objects.all()
     serializer_class = AlunoSerializer
 
+
 class AlunoList(generics.ListAPIView):
     serializer_class = AlunoSerializer
     queryset = Aluno.objects.all()
@@ -63,26 +64,23 @@ class DisciplinaAlunoList(generics.ListAPIView):
 
 
     def post(self, request, *args, **kwargs):
-        import ipdb; ipdb.set_trace()
-
         response = { 'data': {'success': True }}
+        try:
+            aluno = Aluno.objects.get(matricula=request.DATA['aluno']['matricula'])
+            disciplina = Disciplina.objects.get(id=request.DATA['disciplina']['id'])
+            notaNova = request.DATA['nota']
 
-        aluno_id = request.DATA['aluno_id']
-        disciplina_id = request.DATA['disciplina_id']
-
-        if (request.DATA['metodo'] == 'alterar'):
-            nota_atualizada = request.DATA['nota']
-            try:
-                DisciplinaAluno.objects.filter(aluno__id=aluno_id, disciplina__id=disciplina_id).update(nota=nota_atualizada)
-            except:
+            numeroDeIguais = DisciplinaAluno.objects.filter(aluno=aluno, disciplina=disciplina).count()
+            if (numeroDeIguais > 0):
                 response['data']['success'] = False
-        elif (request.DATA['metodo'] == 'excluir'):
-            try:
-                DisciplinaAluno.objects.filter(aluno__id=aluno_id, disciplina__id=disciplina_id).delete()
-            except:
-                response['data']['success'] = False
+            else:
+                nota = DisciplinaAluno(aluno=aluno, disciplina=disciplina, nota=notaNova)
+                nota.save()
+        except:
+            response['data']['success'] = False
 
         return Response(**response)
+
 
 class DisciplinaAlunoDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = DisciplinaAluno.objects.all()
@@ -91,8 +89,6 @@ class DisciplinaAlunoDetail(generics.RetrieveUpdateDestroyAPIView):
     def update(self, request, pk=None):
         response = { 'data': {'success': True }}
         try:
-            import ipdb; ipdb.set_trace()
-
             self.queryset.filter(id=request.DATA['id']).update(nota=request.DATA['nota'])
         except:
             response = { 'data': {'success': False }}
