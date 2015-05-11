@@ -68,7 +68,7 @@ class DisciplinaAlunoList(generics.ListAPIView):
         queryset = DisciplinaAluno.objects.all()
         aluno = self.request.QUERY_PARAMS.get('aluno', None)
         if aluno is not None:
-            queryset = queryset.filter(aluno__matricula=aluno)
+            queryset = queryset.filter(aluno__matricula=aluno).order_by('disciplina__nome')
         return queryset
 
     def get(self, request, format=None):
