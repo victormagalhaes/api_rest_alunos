@@ -11,6 +11,21 @@ class DisciplinaList(generics.ListCreateAPIView):
     queryset = Disciplina.objects.all()
     serializer_class = DisciplinaSerializer
 
+    def list(self, request):
+        try:
+            matricula_excluir = request.QUERY_PARAMS['matricula_excluir']
+        except:
+            matricula_excluir = None
+
+        if matricula_excluir is not None:
+            disciplinasDoAluno = DisciplinaAluno.objects.filter(aluno__matricula=matricula_excluir).values_list('disciplina__id', flat=True).order_by('id')
+            disciplinas = self.queryset.exclude(id__in=disciplinasDoAluno)
+        else:
+            disciplinas = self.queryset
+
+        serializer_class = DisciplinaSerializer(disciplinas, many=True)
+        return Response(serializer_class.data)
+
 
 class DisciplinaDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Disciplina.objects.all()
